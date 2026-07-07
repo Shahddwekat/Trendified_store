@@ -10,8 +10,13 @@ function App() {
   // cart item: { id, name, price, image, option, qty }
   const [cart, setCart] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
-  // product awaiting an option choice: the product object or null
   const [choosing, setChoosing] = useState(null);
+
+  // checkout
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [placing, setPlacing] = useState(false);
+  const [orderResult, setOrderResult] = useState(null); // { orderId } or { error }
+  const [form, setForm] = useState({ customerName: '', phone: '', address: '' });
 
   useEffect(() => {
     fetch('/api/products')
@@ -27,14 +32,11 @@ function App() {
   const cartCount = cart.reduce((n, i) => n + i.qty, 0);
   const cartTotal = cart.reduce((n, i) => n + i.qty * i.price, 0);
 
-  // same product + same option = same cart line; otherwise separate lines
   function addToCart(product, option = '') {
     setCart(prev => {
       const line = prev.find(i => i.id === product.id && i.option === option);
       if (line) {
-        return prev.map(i =>
-          i === line ? { ...i, qty: i.qty + 1 } : i
-        );
+        return prev.map(i => (i === line ? { ...i, qty: i.qty + 1 } : i));
       }
       return [...prev, {
         id: product.id, name: product.name, price: product.price,
@@ -46,7 +48,7 @@ function App() {
 
   function handleAddClick(product) {
     if (product.options.length > 0) {
-      setChoosing(product);   // must pick a variant first
+      setChoosing(product);
     } else {
       addToCart(product);
     }
@@ -57,6 +59,34 @@ function App() {
       .map(i => (i === line ? { ...i, qty: i.qty + delta } : i))
       .filter(i => i.qty > 0)
     );
+  }
+
+  async function placeOrder(e) {
+    e.preventDefault();
+    if (placing) return;
+    setPlacing(true);
+    try {
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customerName: form.customerName.trim(),
+          phone: form.phone.trim(),
+          address: form.address.trim(),
+          items: cart.map(i => ({ name: i.name, price: i.price, qty: i.qty, option: i.option })),
+          total: cartTotal,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'failed');
+      setOrderResult({ orderId: data.orderId });
+      setCart([]);
+      setForm({ customerName: '', phone: '', address: '' });
+    } catch {
+      setOrderResult({ error: true });
+    } finally {
+      setPlacing(false);
+    }
   }
 
   return (
@@ -221,11 +251,77 @@ function App() {
                   <span className="font-display text-xl font-bold">₪{cartTotal}</span>
                 </div>
                 <button
-                  onClick={() => alert('Checkout is the next step 😉')}
+                  onClick={() => { setCartOpen(false); setCheckoutOpen(true); setOrderResult(null); }}
                   className="w-full rounded bg-brown py-3.5 text-xs font-bold tracking-[0.1em] text-white hover:bg-charcoal transition-colors">
                   CHECKOUT — CASH ON DELIVERY
                 </button>
               </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Checkout sheet */}
+      {checkoutOpen && (
+        <div className="fixed inset-0 z-[70] flex items-end justify-center bg-charcoal/40"
+          onClick={() => !placing && setCheckoutOpen(false)}>
+          <div className="w-full max-w-md rounded-t-2xl bg-surface-low p-6 pb-8 max-h-[90vh] overflow-y-auto"
+            onClick={e => e.stopPropagation()}>
+
+            {orderResult?.orderId ? (
+              <div className="py-8 text-center">
+                <div className="text-5xl mb-4">🎉</div>
+                <h3 className="font-display text-2xl font-bold mb-2">Order placed!</h3>
+                <p className="text-brown/80 mb-1">Order ID: <b>{orderResult.orderId}</b></p>
+                <p className="text-sm text-brown/60 mb-6">We'll call you to confirm. Pay cash on delivery.</p>
+                <button onClick={() => setCheckoutOpen(false)}
+                  className="rounded bg-brown px-8 py-3 text-xs font-bold tracking-[0.1em] text-white">
+                  DONE
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={placeOrder}>
+                <h3 className="font-display text-xl font-bold mb-4">Delivery details</h3>
+
+                <label className="block mb-3">
+                  <span className="mb-1 block text-xs font-bold tracking-[0.1em] text-brown">NAME</span>
+                  <input required value={form.customerName}
+                    onChange={e => setForm({ ...form, customerName: e.target.value })}
+                    className="w-full rounded border border-brown/20 bg-white px-4 py-3 text-charcoal outline-none focus:border-brown" />
+                </label>
+
+                <label className="block mb-3">
+                  <span className="mb-1 block text-xs font-bold tracking-[0.1em] text-brown">PHONE</span>
+                  <input required type="tel" inputMode="tel" value={form.phone}
+                    onChange={e => setForm({ ...form, phone: e.target.value })}
+                    placeholder="05XXXXXXXX"
+                    className="w-full rounded border border-brown/20 bg-white px-4 py-3 text-charcoal outline-none focus:border-brown" />
+                </label>
+
+                <label className="block mb-5">
+                  <span className="mb-1 block text-xs font-bold tracking-[0.1em] text-brown">ADDRESS</span>
+                  <textarea required rows={3} value={form.address}
+                    onChange={e => setForm({ ...form, address: e.target.value })}
+                    placeholder="City, street, building..."
+                    className="w-full rounded border border-brown/20 bg-white px-4 py-3 text-charcoal outline-none focus:border-brown resize-none" />
+                </label>
+
+                <div className="mb-4 flex items-center justify-between">
+                  <span className="text-sm text-brown/70">Total — cash on delivery</span>
+                  <span className="font-display text-xl font-bold">₪{cartTotal}</span>
+                </div>
+
+                {orderResult?.error && (
+                  <p className="mb-3 text-center text-sm text-red-700">
+                    Something went wrong — please try again.
+                  </p>
+                )}
+
+                <button type="submit" disabled={placing || cart.length === 0}
+                  className="w-full rounded bg-brown py-3.5 text-xs font-bold tracking-[0.1em] text-white hover:bg-charcoal transition-colors disabled:opacity-50">
+                  {placing ? 'PLACING ORDER...' : 'PLACE ORDER'}
+                </button>
+              </form>
             )}
           </div>
         </div>
