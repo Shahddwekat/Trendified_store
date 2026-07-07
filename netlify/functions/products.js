@@ -7,13 +7,16 @@ export default async (req) => {
     try {
       const r = await sheets.spreadsheets.values.get({
         spreadsheetId: SHEET_ID,
-        range: 'Products!A2:H',
+        range: "'Products'!A2:H",
       });
       const rows = r.data.values || [];
       const products = rows
         .map(([id, name, price, image, description, category, options, available]) => ({
-          id, name, price: Number(price),
-          image: image || '', description: description || '',
+          id,
+          name,
+          price: Number(price),
+          image: image || '',
+          description: description || '',
           category: (category || 'other').trim().toLowerCase(),
           options: options ? options.split(',').map(o => o.trim()).filter(Boolean) : [],
           available: available !== 'FALSE' && available !== 'false',
@@ -44,7 +47,7 @@ export default async (req) => {
       const id = 'P' + Date.now();
       await sheets.spreadsheets.values.append({
         spreadsheetId: SHEET_ID,
-        range: 'Products!A:H',
+        range: "'Products'!A:H",
         valueInputOption: 'USER_ENTERED',
         requestBody: {
           values: [[id, name, Number(price), image || '', description || '',

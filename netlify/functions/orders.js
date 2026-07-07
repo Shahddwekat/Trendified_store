@@ -27,7 +27,7 @@ export default async (req) => {
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: SHEET_ID,
-      range: 'Orders!A:H',
+      range: "'Orders'!A:H",
       valueInputOption: 'USER_ENTERED',
       requestBody: {
         values: [[orderId, date, customerName, phone, address, itemsText, total, 'NEW']],
