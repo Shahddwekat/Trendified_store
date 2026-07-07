@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import hero from './assets/hero.png';
 
 function App() {
   const [products, setProducts] = useState([]);
@@ -11,6 +10,7 @@ function App() {
   const [cart, setCart] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [choosing, setChoosing] = useState(null);
+  const [viewing, setViewing] = useState(null); // product being previewed
 
   // checkout
   const [checkoutOpen, setCheckoutOpen] = useState(false);
@@ -73,8 +73,7 @@ function App() {
           customerName: form.customerName.trim(),
           phone: form.phone.trim(),
           address: form.address.trim(),
-          items: cart.map(i => ({ name: i.name, price: i.price, qty: i.qty, option: i.option })),
-          total: cartTotal,
+          items: cart.map(i => ({ id: i.id, qty: i.qty, option: i.option })),          total: 1,
         }),
       });
       const data = await res.json();
@@ -115,13 +114,10 @@ function App() {
 
       <main className="pt-16 max-w-7xl mx-auto">
 
-        {/* Hero */}
+        {/* Hero — blush gradient, no image */}
         <section className="mt-3 px-5 md:px-16">
-          <div className="relative h-[380px] md:h-[500px] overflow-hidden rounded-lg group">
-            <img src={hero} alt="Trendified"
-              className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
-            <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />
-            <div className="absolute bottom-10 left-6 md:left-12 max-w-xl">
+          <div className="relative h-[380px] md:h-[500px] overflow-hidden rounded-lg bg-gradient-to-br from-peach via-surface-high to-background flex items-center">
+            <div className="px-6 md:px-12 max-w-xl">
               <span className="block mb-3 text-xs font-bold tracking-[0.1em] text-brown">FANDOM &amp; TRENDS</span>
               <h1 className="font-display text-4xl md:text-5xl font-bold leading-tight mb-4">
                 Everything trendy, in one place.
@@ -130,7 +126,7 @@ function App() {
                 Phone cases, beauty, keychains &amp; fandom picks — delivered to your door, cash on delivery.
               </p>
               <a href="#shop"
-                className="inline-flex items-center gap-2 bg-peach text-brown px-7 py-3.5 text-xs font-bold tracking-[0.1em] hover:bg-brown hover:text-white transition-all rounded">
+                className="inline-flex items-center gap-2 bg-brown text-white px-7 py-3.5 text-xs font-bold tracking-[0.1em] hover:bg-charcoal transition-all rounded">
                 SHOP NOW →
               </a>
             </div>
@@ -164,7 +160,8 @@ function App() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-10">
             {shown.map(p => (
               <div key={p.id} className="group">
-                <div className="aspect-[3/4] overflow-hidden mb-4 rounded bg-surface-high transition-transform duration-300 group-hover:-translate-y-2">
+                <div onClick={() => setViewing(p)}
+                  className="aspect-[3/4] overflow-hidden mb-4 rounded bg-surface-high transition-transform duration-300 group-hover:-translate-y-2 cursor-pointer">
                   {p.image ? (
                     <img src={p.image} alt={p.name} loading="lazy" className="h-full w-full object-cover" />
                   ) : (
@@ -173,7 +170,8 @@ function App() {
                 </div>
                 <div className="text-center">
                   <p className="mb-1 text-xs font-bold tracking-[0.1em] uppercase text-brown">{p.category}</p>
-                  <h3 className="mb-1 text-base text-charcoal">{p.name}</h3>
+                  <h3 onClick={() => setViewing(p)}
+                    className="mb-1 text-base text-charcoal cursor-pointer hover:text-brown">{p.name}</h3>
                   <p className="mb-3 text-xs font-bold tracking-[0.1em] text-brown/70">₪{p.price}</p>
                   <button onClick={() => handleAddClick(p)}
                     className="w-full rounded bg-brown/10 py-2 text-xs font-bold tracking-[0.1em] text-brown hover:bg-brown hover:text-white transition-colors">
@@ -201,6 +199,40 @@ function App() {
                   {opt}
                 </button>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Quick-view modal */}
+      {viewing && (
+        <div className="fixed inset-0 z-[65] flex items-end md:items-center justify-center bg-charcoal/40"
+          onClick={() => setViewing(null)}>
+          <div className="w-full max-w-md rounded-t-2xl md:rounded-2xl bg-surface-low max-h-[90vh] overflow-y-auto"
+            onClick={e => e.stopPropagation()}>
+            <div className="relative">
+              <div className="aspect-square bg-surface-high">
+                {viewing.image
+                  ? <img src={viewing.image} alt={viewing.name} className="h-full w-full object-cover" />
+                  : <div className="flex h-full items-center justify-center text-6xl">🛍️</div>}
+              </div>
+              <button onClick={() => setViewing(null)}
+                className="absolute top-3 right-3 h-8 w-8 rounded-full bg-white/80 backdrop-blur text-brown text-xl leading-none flex items-center justify-center">
+                ×
+              </button>
+            </div>
+            <div className="p-6">
+              <p className="mb-1 text-xs font-bold tracking-[0.1em] uppercase text-brown">{viewing.category}</p>
+              <h2 className="font-display text-2xl font-bold mb-2">{viewing.name}</h2>
+              <p className="font-display text-xl font-bold text-brown mb-4">₪{viewing.price}</p>
+              {viewing.description && (
+                <p className="text-sm text-brown/80 leading-relaxed mb-6">{viewing.description}</p>
+              )}
+              <button
+                onClick={() => { const p = viewing; setViewing(null); handleAddClick(p); }}
+                className="w-full rounded bg-brown py-3.5 text-xs font-bold tracking-[0.1em] text-white hover:bg-charcoal transition-colors">
+                ADD TO CART
+              </button>
             </div>
           </div>
         </div>
