@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useCart } from './CartContext.jsx';
 
 export default function ProductPage() {
   const { id } = useParams();
   const { products, productsLoading, addToCart, setCartOpen } = useCart();
+  const navigate = useNavigate();
   const [option, setOption] = useState('');
 
   const product = products.find(p => p.id === id);
@@ -13,6 +14,12 @@ export default function ProductPage() {
     if (product.options.length > 0 && !option) return;
     addToCart(product, option);
     setCartOpen(true);
+  }
+
+  function handleBuyNow() {
+    if (product.options.length > 0 && !option) return;
+    addToCart(product, option);
+    navigate('/checkout');
   }
 
   if (productsLoading) return <p className="pt-32 text-center text-brown/60">Loading...</p>;
@@ -67,11 +74,18 @@ export default function ProductPage() {
             </div>
           )}
 
-          <button onClick={handleAdd}
-            disabled={needsOption && !option}
-            className="w-full md:w-auto rounded bg-brown px-10 py-3.5 text-xs font-bold tracking-[0.1em] text-white hover:bg-charcoal transition-colors disabled:opacity-50">
-            {needsOption && !option ? 'SELECT AN OPTION' : 'ADD TO CART'}
-          </button>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button onClick={handleAdd}
+              disabled={needsOption && !option}
+              className="flex-1 rounded border border-brown px-10 py-3.5 text-xs font-bold tracking-[0.1em] text-brown hover:bg-brown/10 transition-colors disabled:opacity-50">
+              {needsOption && !option ? 'SELECT AN OPTION' : 'ADD TO CART'}
+            </button>
+            <button onClick={handleBuyNow}
+              disabled={needsOption && !option}
+              className="flex-1 rounded bg-brown px-10 py-3.5 text-xs font-bold tracking-[0.1em] text-white hover:bg-charcoal transition-colors disabled:opacity-50">
+              BUY NOW
+            </button>
+          </div>
         </div>
       </div>
     </main>

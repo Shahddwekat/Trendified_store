@@ -3,6 +3,7 @@ import { CartProvider, useCart } from './CartContext.jsx';
 import ShopPage from './ShopPage.jsx';
 import ProductPage from './ProductPage.jsx';
 import CheckoutPage from './CheckoutPage.jsx';
+import RequestPage from './RequestPage.jsx';
 
 function Header() {
   const { cartCount, setCartOpen } = useCart();
@@ -12,18 +13,24 @@ function Header() {
         <Link to="/" className="font-display text-2xl font-bold tracking-tight">
           Trendified<span className="text-brown">.</span>
         </Link>
-        <button onClick={() => setCartOpen(true)}
-          className="relative p-2 text-charcoal hover:text-brown transition-colors">
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round"
-              d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" />
-          </svg>
-          {cartCount > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 h-5 w-5 rounded-full bg-brown text-white text-xs font-bold flex items-center justify-center">
-              {cartCount}
-            </span>
-          )}
-        </button>
+        <div className="flex items-center gap-3">
+          <Link to="/request"
+            className="rounded-full bg-brown px-4 py-2 text-xs font-bold tracking-wide text-white hover:bg-charcoal transition-colors whitespace-nowrap">
+            Request ✨
+          </Link>
+          <button onClick={() => setCartOpen(true)}
+            className="relative p-2 text-charcoal hover:text-brown transition-colors">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round"
+                d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" />
+            </svg>
+            {cartCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 h-5 w-5 rounded-full bg-brown text-white text-xs font-bold flex items-center justify-center">
+                {cartCount}
+              </span>
+            )}
+          </button>
+        </div>
       </div>
     </header>
   );
@@ -34,7 +41,8 @@ function Footer() {
     <footer className="bg-surface-high border-t border-brown/10 mt-12">
       <div className="max-w-7xl mx-auto px-5 md:px-16 py-10 text-center">
         <p className="font-display text-2xl font-bold mb-2">Trendified<span className="text-brown">.</span></p>
-        <p className="text-sm text-brown/70 mb-6">Everything trendy, delivered to your door.</p>
+        <p className="text-sm text-brown/70 mb-4">Your style, your trend ✨</p>
+
 
         <div className="flex items-center justify-center gap-6 mb-8">
           <a href="https://instagram.com/trendified7" target="_blank" rel="noopener noreferrer"
@@ -47,6 +55,12 @@ function Footer() {
             className="text-charcoal hover:text-brown transition-colors" aria-label="TikTok">
             <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
               <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64c.3 0 .59.05.87.13V9.4a6.33 6.33 0 00-1-.05A6.34 6.34 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1.04-.1z"/>
+            </svg>
+          </a>
+          <a href="https://wa.me/970599834531" target="_blank" rel="noopener noreferrer"
+            className="text-charcoal hover:text-brown transition-colors" aria-label="WhatsApp">
+            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.945C.16 5.335 5.495 0 12.05 0a11.817 11.817 0 018.413 3.488 11.824 11.824 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 001.51 5.26l-.999 3.648 3.978-1.607zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
             </svg>
           </a>
         </div>
@@ -108,7 +122,7 @@ function CartDrawer() {
 
         <div className="flex-1 overflow-y-auto p-5">
           {cart.length === 0 && (
-            <p className="py-10 text-center text-brown/60">Cart is empty — go grab something cute.</p>
+            <p className="py-10 text-center text-brown/60">Cart is empty , go grab something cute.</p>
           )}
           {cart.map((line, idx) => (
             <div key={idx} className="mb-4 flex items-center gap-3">
@@ -141,7 +155,7 @@ function CartDrawer() {
             </div>
             <button onClick={goCheckout}
               className="w-full rounded bg-brown py-3.5 text-xs font-bold tracking-[0.1em] text-white hover:bg-charcoal transition-colors">
-              CHECKOUT — CASH ON DELIVERY
+              CHECKOUT
             </button>
           </div>
         )}
@@ -159,6 +173,7 @@ export default function App() {
           <Route path="/" element={<ShopPage />} />
           <Route path="/product/:id" element={<ProductPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/request" element={<RequestPage />} />
         </Routes>
         <Footer />
         <OptionPicker />
