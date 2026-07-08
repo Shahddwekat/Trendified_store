@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Cairo:wght@400;500;700&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -10,7 +10,7 @@
   --color-charcoal: #0C1014;
 
   --font-display: "Playfair Display", serif;
-  --font-sans: "DM Sans", sans-serif;
+--font-sans: "Cairo", sans-serif;
 }
 
 .no-scrollbar::-webkit-scrollbar { display: none; }
